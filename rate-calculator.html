@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="manifest" href="manifest.json"/>
+  <meta name="theme-color" content="#1c1c1a"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="Bliss Calc"/>
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+  <title>Service Rate Calculator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --surface:    #1c1c1a;
+      --border:     #2e2e2b;
+      --gold:       #c9a96e;
+      --gold-light: #e0c898;
+      --gold-dim:   #7a6340;
+      --text:       #e8e4dc;
+      --muted:      #7a7771;
+      --pill-bg:    #252522;
+      --radius:     6px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-text-size-adjust: 100%; }
+
+    body {
+      background: var(--surface);
+      font-family: 'Jost', sans-serif;
+      font-weight: 300;
+      color: var(--text);
+      padding: 16px 12px 48px;
+    }
+
+    /* ── OUTER WRAPPER ── */
+    .calculator {
+      width: 100%;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    /* ── SHARED CARD ── */
+    .block {
+      display: block;
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+
+    /* ── BLOCK 1: TITLE ── */
+    .title-block {
+      padding: 28px 20px 24px;
+      text-align: center;
+    }
+    .title-eyebrow {
+      font-size: 9px;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: var(--gold-dim);
+      margin-bottom: 10px;
+    }
+    .title-main {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(28px, 8vw, 42px);
+      font-weight: 400;
+      color: var(--gold-light);
+      letter-spacing: 0.04em;
+      line-height: 1.1;
+    }
+    .title-line {
+      width: 36px;
+      height: 1px;
+      background: var(--gold-dim);
+      margin: 14px auto 0;
+    }
+
+    /* ── BLOCK 2: SERVICE SELECTOR ── */
+    .selector-block {
+      padding: 20px 18px;
+    }
+    .block-label {
+      font-size: 9px;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: var(--gold-dim);
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .select-wrapper { position: relative; }
+    .select-wrapper::after {
+      content: '\25BE';
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--gold-dim);
+      font-size: 11px;
+      pointer-events: none;
+    }
+    select {
+      width: 100%;
+      -webkit-appearance: none;
+      appearance: none;
+      background: var(--pill-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-family: 'Jost', sans-serif;
+      font-size: 16px; /* prevents iOS zoom */
+      font-weight: 300;
+      padding: 13px 36px 13px 12px;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    select:focus { outline: none; border-color: var(--gold-dim); }
+    select option { background: #1c1c1a; color: var(--text); }
+
+    /* ── BLOCK 3: ENHANCEMENTS ── */
+    .enhancements-block {
+      padding: 20px 18px;
+    }
+
+    .enhancements-grid { display: flex; flex-direction: column; gap: 8px; }
+
+    .enhancement-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 13px 12px;
+      background: var(--pill-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      min-height: 48px;
+    }
+    .enhancement-item:active { border-color: var(--gold-dim); }
+    .enhancement-item.selected { border-color: var(--gold); background: #221e15; }
+    .enhancement-item input[type="checkbox"] { display: none; }
+
+    .check-box {
+      width: 18px; height: 18px;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s;
+    }
+    .enhancement-item.selected .check-box { background: var(--gold); border-color: var(--gold); }
+    .check-box::after {
+      content: '';
+      width: 5px; height: 8px;
+      border-right: 2px solid #111;
+      border-bottom: 2px solid #111;
+      transform: rotate(45deg) translate(-1px, -1px);
+      opacity: 0;
+      transition: opacity 0.1s;
+    }
+    .enhancement-item.selected .check-box::after { opacity: 1; }
+    .enhancement-name { flex: 1; font-size: 14px; color: var(--text); line-height: 1.3; }
+    .enhancement-price { font-size: 13px; color: var(--gold-dim); white-space: nowrap; }
+
+    /* ── BLOCK 4: BUTTON ── */
+    .btn-calculate {
+      display: block;
+      width: 100%;
+      padding: 18px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--gold);
+      font-family: 'Jost', sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s, color 0.2s;
+      min-height: 56px;
+      -webkit-tap-highlight-color: transparent;
+      margin-bottom: 10px;
+    }
+    .btn-calculate:active:not(:disabled),
+    .btn-calculate:hover:not(:disabled) {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: #111;
+    }
+    .btn-calculate:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    /* ── RESULTS ── */
+    .results {
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      pointer-events: none;
+    }
+    .results.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+
+    .result-total {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      text-align: center;
+      padding: 24px 20px 20px;
+      margin-bottom: 10px;
+    }
+    .result-total-label {
+      font-size: 9px; letter-spacing: 0.35em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 6px;
+    }
+    .result-total-amount {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(40px, 12vw, 56px);
+      font-weight: 300; color: var(--gold-light);
+      letter-spacing: 0.02em; line-height: 1;
+    }
+    .result-total-summary {
+      font-size: 11px; color: var(--muted);
+      margin-top: 8px; line-height: 1.5;
+      word-break: break-word;
+    }
+
+    .breakdown-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .breakdown-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 12px;
+    }
+    .breakdown-item.full-width { grid-column: 1 / -1; }
+    .breakdown-role {
+      font-size: 8.5px; letter-spacing: 0.28em;
+      text-transform: uppercase; color: #ffffff; font-weight: 500; margin-bottom: 5px;
+    }
+    .breakdown-amount {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(22px, 6vw, 30px);
+      font-weight: 400; color: var(--text);
+    }
+    .breakdown-item.envelope .breakdown-amount { color: var(--gold); }
+
+    /* ── STATES ── */
+    .loading-state {
+      text-align: center; padding: 16px;
+      color: var(--muted); font-size: 13px; letter-spacing: 0.08em;
+    }
+    .error-state {
+      padding: 14px; color: #c97070; font-size: 12px;
+      line-height: 1.6; text-align: center;
+      border: 1px solid #3a2020; border-radius: var(--radius); background: #1e1515;
+    }
+  </style>
+</head>
+<body>
+<div class="calculator">
+
+  <!-- BLOCK 1: Title -->
+  <div class="block title-block">
+    <div class="title-eyebrow">Rate Calculator</div>
+    <div class="title-main">Service Calculator</div>
+    <div class="title-line"></div>
+  </div>
+
+  <!-- BLOCK 2: Service Selector -->
+  <div class="block selector-block">
+    <span class="block-label">Select a Service</span>
+    <div id="service-container">
+      <div class="loading-state">Loading services&#8230;</div>
+    </div>
+  </div>
+
+  <!-- BLOCK 3: Enhancements (shown only when applicable) -->
+  <div class="block enhancements-block" id="enhancements-card" style="display:none;">
+    <span class="block-label">Add Enhancements</span>
+    <div id="enhancements-container"></div>
+  </div>
+
+  <!-- BLOCK 4: Calculate Button -->
+  <button class="btn-calculate" id="calc-btn" disabled onclick="calculate()">Calculate Total</button>
+
+  <!-- Results -->
+  <div class="results" id="results">
+    <div class="result-total">
+      <div class="result-total-label">Total Investment</div>
+      <div class="result-total-amount" id="res-total">$0</div>
+      <div class="result-total-summary" id="res-summary"></div>
+    </div>
+    <div class="breakdown-grid">
+      <div class="breakdown-item">
+        <div class="breakdown-role">Provider</div>
+        <div class="breakdown-amount" id="res-provider">$0</div>
+      </div>
+      <div class="breakdown-item">
+        <div class="breakdown-role">House</div>
+        <div class="breakdown-amount" id="res-house">$0</div>
+      </div>
+      <div class="breakdown-item">
+        <div class="breakdown-role">Booker</div>
+        <div class="breakdown-amount" id="res-booker">$0</div>
+      </div>
+      <div class="breakdown-item envelope full-width">
+        <div class="breakdown-role">Envelope Total</div>
+        <div class="breakdown-amount" id="res-envelope">$0</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<script>
+var SERVICES_URL     = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ6dMzEqV3TJsy2TWmdEd-YQ8z2lV31CgAfZnCbID7Mpl-15IBZI5qnPhQr3tug-d8BKWx-lhJDCuD4/pub?gid=0&single=true&output=csv';
+var ENHANCEMENTS_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ6dMzEqV3TJsy2TWmdEd-YQ8z2lV31CgAfZnCbID7Mpl-15IBZI5qnPhQr3tug-d8BKWx-lhJDCuD4/pub?gid=891352209&single=true&output=csv';
+var PROXY            = 'https://corsproxy.io/?';
+
+var servicesData     = [];
+var enhancementsData = [];
+
+function fetchCSV(url) {
+  return fetch(url)
+    .then(function(r) {
+      if (!r.ok) throw new Error('status ' + r.status);
+      return r.text();
+    })
+    .catch(function() {
+      return fetch(PROXY + encodeURIComponent(url))
+        .then(function(r) {
+          if (!r.ok) throw new Error('proxy ' + r.status);
+          return r.text();
+        });
+    });
+}
+
+function splitLine(line) {
+  var cols = [], cur = '', inQ = false;
+  for (var i = 0; i < line.length; i++) {
+    var c = line[i];
+    if (c === '"') { inQ = !inQ; }
+    else if (c === ',' && !inQ) { cols.push(cur.trim()); cur = ''; }
+    else { cur += c; }
+  }
+  cols.push(cur.trim());
+  return cols;
+}
+
+function parseCSV(text, isEnh) {
+  var lines = text.replace(/\r/g, '').trim().split('\n').filter(function(l) { return l.trim(); });
+  var rows = [];
+  for (var i = 1; i < lines.length; i++) {
+    var c = splitLine(lines[i]);
+    var row = {
+      name:     (c[0] || '').replace(/^"|"$/g, ''),
+      total:    parseFloat(c[1]) || 0,
+      provider: parseFloat(c[2]) || 0,
+      house:    parseFloat(c[3]) || 0,
+      booker:   parseFloat(c[4]) || 0,
+      envelope: parseFloat(c[5]) || 0,
+      services: []
+    };
+    if (isEnh) {
+      var raw = (c[6] || '').replace(/^"|"$/g, '').trim();
+      row.services = raw ? raw.split(',').map(function(s) { return s.trim().toLowerCase(); }) : [];
+    }
+    if (row.name) rows.push(row);
+  }
+  return rows;
+}
+
+var dollar = function(n) {
+  return '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 0 });
+};
+
+function showError(msg) {
+  document.getElementById('service-container').innerHTML = '<div class="error-state">' + msg + '</div>';
+}
+
+function renderServices() {
+  var c = document.getElementById('service-container');
+  if (!servicesData.length) { showError('No services found.'); return; }
+  var opts = '<option value="">&#8212; Choose a service &#8212;</option>';
+  for (var i = 0; i < servicesData.length; i++) {
+    opts += '<option value="' + i + '">' + servicesData[i].name + ' \u2014 ' + dollar(servicesData[i].total) + '</option>';
+  }
+  c.innerHTML = '<div class="select-wrapper"><select id="svc" onchange="onServiceChange()">' + opts + '</select></div>';
+}
+
+function onServiceChange() {
+  var val = document.getElementById('svc').value;
+  document.getElementById('calc-btn').disabled = (val === '');
+  document.getElementById('results').classList.remove('visible');
+
+  if (val === '') {
+    document.getElementById('enhancements-card').style.display = 'none';
+    return;
+  }
+
+  var name = servicesData[parseInt(val)].name.toLowerCase();
+  var applicable = [];
+  for (var i = 0; i < enhancementsData.length; i++) {
+    var e = enhancementsData[i];
+    if (e.services.length === 0 || e.services.indexOf(name) !== -1) {
+      applicable.push({ data: e, idx: i });
+    }
+  }
+
+  var card = document.getElementById('enhancements-card');
+  var cont = document.getElementById('enhancements-container');
+
+  if (!applicable.length) { card.style.display = 'none'; return; }
+
+  var html = '<div class="enhancements-grid">';
+  for (var j = 0; j < applicable.length; j++) {
+    var a = applicable[j];
+    html += '<label class="enhancement-item" id="ei' + a.idx + '" onclick="toggleEnh(' + a.idx + ')">'
+          + '<input type="checkbox" id="ec' + a.idx + '" />'
+          + '<div class="check-box"></div>'
+          + '<span class="enhancement-name">' + a.data.name + '</span>'
+          + '<span class="enhancement-price">+' + dollar(a.data.total) + '</span>'
+          + '</label>';
+  }
+  html += '</div>';
+  cont.innerHTML = html;
+  card.style.display = 'block';
+}
+
+function toggleEnh(i) {
+  var cb   = document.getElementById('ec' + i);
+  var item = document.getElementById('ei' + i);
+  cb.checked = !cb.checked;
+  item.classList.toggle('selected', cb.checked);
+}
+
+function calculate() {
+  var idx = parseInt(document.getElementById('svc').value);
+  var svc = servicesData[idx];
+  var total = svc.total, provider = svc.provider, house = svc.house, booker = svc.booker, envelope = svc.envelope;
+  var names = [svc.name];
+
+  for (var i = 0; i < enhancementsData.length; i++) {
+    var cb = document.getElementById('ec' + i);
+    if (cb && cb.checked) {
+      var e = enhancementsData[i];
+      total    += e.total;
+      provider += e.provider;
+      house    += e.house;
+      booker   += e.booker;
+      envelope += e.envelope;
+      names.push(e.name);
+    }
+  }
+
+  document.getElementById('res-total').textContent    = dollar(total);
+  document.getElementById('res-provider').textContent = dollar(provider);
+  document.getElementById('res-house').textContent    = dollar(house);
+  document.getElementById('res-booker').textContent   = dollar(booker);
+  document.getElementById('res-envelope').textContent = dollar(envelope);
+  document.getElementById('res-summary').textContent  = names.join(' + ');
+
+  document.getElementById('results').classList.add('visible');
+  document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+Promise.all([fetchCSV(SERVICES_URL), fetchCSV(ENHANCEMENTS_URL)])
+  .then(function(results) {
+    servicesData     = parseCSV(results[0], false);
+    enhancementsData = parseCSV(results[1], true);
+    renderServices();
+  })
+  .catch(function(err) {
+    showError('Could not load data. Try refreshing.<br><small>' + err.message + '</small>');
+  });
+</script>
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("service-worker.js");
+    }
+  </script>
+</body>
+</html>

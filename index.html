@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+  <title>Bliss Sanctum Calculator</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json"/>
+  <meta name="theme-color" content="#1c1c1a"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="Bliss Calc"/>
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png"/>
+
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --surface:    #1c1c1a;
+      --border:     #2e2e2b;
+      --gold:       #c9a96e;
+      --gold-light: #e0c898;
+      --gold-dim:   #7a6340;
+      --text:       #e8e4dc;
+      --muted:      #7a7771;
+      --radius:     6px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-text-size-adjust: 100%; }
+
+    body {
+      background: #111110;
+      font-family: 'Jost', sans-serif;
+      font-weight: 300;
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 20px 48px;
+    }
+
+    /* ── LOGO ── */
+    .logo-wrap {
+      margin-bottom: 28px;
+      text-align: center;
+    }
+    .logo-wrap img {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+    }
+
+    /* ── HEADER ── */
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .header-eyebrow {
+      font-size: 9px;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: var(--gold-dim);
+      margin-bottom: 10px;
+    }
+    .header h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(28px, 8vw, 42px);
+      font-weight: 400;
+      color: var(--gold-light);
+      letter-spacing: 0.04em;
+      line-height: 1.1;
+    }
+    .header-line {
+      width: 36px; height: 1px;
+      background: var(--gold-dim);
+      margin: 14px auto 0;
+    }
+
+    /* ── CARDS ── */
+    .cards {
+      width: 100%;
+      max-width: 400px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .app-card {
+      display: block;
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px 22px;
+      text-decoration: none;
+      color: var(--text);
+      transition: border-color 0.2s, background 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .app-card:hover, .app-card:active {
+      border-color: var(--gold-dim);
+      background: #222220;
+    }
+
+    .card-eyebrow {
+      font-size: 8.5px;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: var(--gold-dim);
+      margin-bottom: 8px;
+    }
+    .card-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 26px;
+      font-weight: 400;
+      color: var(--gold-light);
+      letter-spacing: 0.03em;
+      margin-bottom: 8px;
+    }
+    .card-desc {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.6;
+      letter-spacing: 0.02em;
+    }
+    .card-arrow {
+      margin-top: 16px;
+      font-size: 10px;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--gold-dim);
+    }
+
+    /* ── INSTALL BANNER ── */
+    .install-banner {
+      display: none;
+      width: 100%;
+      max-width: 400px;
+      margin-top: 20px;
+      background: var(--surface);
+      border: 1px solid var(--gold-dim);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      text-align: center;
+    }
+    .install-banner p {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+    .btn-install {
+      background: var(--gold);
+      border: none;
+      border-radius: var(--radius);
+      color: #111;
+      font-family: 'Jost', sans-serif;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      padding: 12px 20px;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      width: 100%;
+    }
+
+    .footer {
+      margin-top: 36px;
+      font-size: 10px;
+      color: var(--gold-dim);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      opacity: 0.6;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="logo-wrap">
+    <img src="icons/apple-touch-icon.png" alt="Bliss Sanctum"/>
+  </div>
+
+  <div class="header">
+    <div class="header-eyebrow">Bliss Sanctum</div>
+    <h1>Calculators</h1>
+    <div class="header-line"></div>
+  </div>
+
+  <div class="cards">
+
+    <a class="app-card" href="rate-calculator.html">
+      <div class="card-eyebrow">Client Facing</div>
+      <div class="card-title">Service Calculator</div>
+      <div class="card-desc">Select a service and add enhancements to calculate the total cost and fee breakdown.</div>
+      <div class="card-arrow">Open &rarr;</div>
+    </a>
+
+    <a class="app-card" href="daily-totaler.html">
+      <div class="card-eyebrow">Provider</div>
+      <div class="card-title">Daily Totaler</div>
+      <div class="card-desc">Add appointments throughout the day and calculate your running total with a full breakdown.</div>
+      <div class="card-arrow">Open &rarr;</div>
+    </a>
+
+  </div>
+
+  <!-- Install to Home Screen prompt (shown on supported browsers) -->
+  <div class="install-banner" id="install-banner">
+    <p>Add Bliss Sanctum Calculators to your home screen for quick access — works offline too.</p>
+    <button class="btn-install" id="btn-install">Add to Home Screen</button>
+  </div>
+
+  <div class="footer">Bliss Sanctum &mdash; Internal Tools</div>
+
+  <script>
+    // Register service worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js')
+        .then(function() { console.log('SW registered'); })
+        .catch(function(e) { console.log('SW error', e); });
+    }
+
+    // Show install prompt on supported browsers (Chrome/Edge Android)
+    var deferredPrompt;
+    window.addEventListener('beforeinstallprompt', function(e) {
+      e.preventDefault();
+      deferredPrompt = e;
+      document.getElementById('install-banner').style.display = 'block';
+    });
+
+    document.getElementById('btn-install').addEventListener('click', function() {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(function() {
+        deferredPrompt = null;
+        document.getElementById('install-banner').style.display = 'none';
+      });
+    });
+
+    // Hide banner if already installed
+    window.addEventListener('appinstalled', function() {
+      document.getElementById('install-banner').style.display = 'none';
+    });
+  </script>
+</body>
+</html>
